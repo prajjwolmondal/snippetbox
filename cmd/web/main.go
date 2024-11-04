@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"text/template"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"snippetbox.prajjmon.net/internal/models"
@@ -13,8 +14,9 @@ import (
 
 // This struct will hold application-wide dependencies
 type application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -45,9 +47,16 @@ func main() {
 	// Ensure that the connection pool is closed before the main() function exits.
 	defer dbpool.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	app := &application{
-		logger:   logger,
-		snippets: &models.SnippetModel{DbPool: dbpool},
+		logger:        logger,
+		snippets:      &models.SnippetModel{DbPool: dbpool},
+		templateCache: templateCache,
 	}
 
 	// The value returned from the flag.String() function is a pointer to the flag
