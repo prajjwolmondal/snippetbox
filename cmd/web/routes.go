@@ -1,8 +1,12 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
 
-func (app *application) routes() *http.ServeMux {
+	"github.com/justinas/alice"
+)
+
+func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	// Create a file server which serves files out of the "./ui/static" directory.
@@ -18,5 +22,11 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	return mux
+	// Create a middleware chain containing our 'standard' middleware which will be used for
+	// every request our application receives.
+	standard := alice.New(app.recoverFromPanic, app.logRequest, commonHeaders)
+
+	// flow of control (reading from left to right) looks like this:
+	// 		logRequest ↔ commonHeaders ↔ servemux ↔ application handler
+	return standard.Then(mux)
 }

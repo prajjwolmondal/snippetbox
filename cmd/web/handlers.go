@@ -10,8 +10,6 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Server", "Go") // there are also Set(), Del(), Get() and Values() methods that you can use to manipulate and read from the header map
-
 	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, r, err)
