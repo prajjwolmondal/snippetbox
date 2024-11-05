@@ -1,0 +1,22 @@
+{{define "title"}}Create a New Snippet{{end}}
+{{define "main"}}
+<form action='/snippet/create' method='POST'>
+    <div>
+        <label>Title:</label>
+        {{with .Form.FieldErrors.title}}
+            <label class="error">{{.}}</label>
+        {{end}}
+        <input type='text' name='title' value="{{.Form.Title}}">
+    </div>
+    <div>
+        <label>Content:</label>
+        {{with .Form.FieldErrors.content}}
+            <label class="error">{{.}}</label>
+        {{end}}
+        <textarea name='content'>{{.Form.Content}}</textarea>
+    </div>
+    <div>
+        <input type='submit' value='Publish snippet'>
+    </div>
+</form>
+{{end}}
