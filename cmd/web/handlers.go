@@ -57,26 +57,24 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 // Note that most of the struct fields are deliberately exported (i.e. start with a
 // capital letter). This is because struct fields must be exported in order to be read
 // by the html/template package when rendering the template.
+//
+// The struct tags tell the decoder how to map HTML form values into the different struct
+// fields. So, for example, here we're telling the decoder to store the value from the HTML
+// form input with the name "title" in the Title field. The struct tag `form:"-"` tells the
+// decoder to completely ignore a field during decoding.
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	validator.Validator `form:"-"`
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+	var form snippetCreateForm
 
-	// r.ParseForm() adds any data in POST request bodies to the r.PostForm map.
-	// This also works in the same way for PUT and PATCH requests.
-	err := r.ParseForm()
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
-	}
-
-	form := snippetCreateForm{
-		// The r.PostForm.Get() method always returns the form data as a *string*.
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
 	}
 
 	form.CheckField(validator.NotBlank(form.Title), "title", "Title can't be blank")

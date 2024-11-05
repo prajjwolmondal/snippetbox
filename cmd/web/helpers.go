@@ -2,11 +2,14 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/go-playground/form/v4"
 )
 
 // Writes a log entry at Error level (including the request method and URI as attributes),
@@ -54,4 +57,30 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
 	}
+}
+
+func (app *application) decodePostForm(r *http.Request, targetDst any) error {
+
+	// r.ParseForm() adds any data in POST request bodies to the r.PostForm map.
+	// This also works in the same way for PUT and PATCH requests.
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	err = app.formDecoder.Decode(targetDst, r.PostForm)
+	if err != nil {
+
+		// If we try to use an invalid target destination, the Decode() method will return an
+		// error with the type *form.InvalidDecoderError. We raise a panic for this particular
+		// error rather than returning the error.
+		var invalidDecoderError *form.InvalidDecoderError
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+
+		return err
+	}
+
+	return nil
 }

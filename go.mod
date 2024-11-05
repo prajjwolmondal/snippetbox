@@ -3,6 +3,7 @@ module snippetbox.prajjmon.net
 go 1.23.2
 
 require (
+	github.com/go-playground/form/v4 v4.2.1
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/justinas/alice v1.2.0
 )
