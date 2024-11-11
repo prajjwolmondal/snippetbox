@@ -24,6 +24,7 @@ type application struct {
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
+	users          *models.UserModel
 }
 
 func main() {
@@ -75,9 +76,10 @@ func main() {
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+		users:          &models.UserModel{DbPool: dbpool},
 	}
 
-	// Hold the non-default TLS settings we want the server to use. In this case the only
+	// Holds the non-default TLS settings we want the server to use. In this case the only
 	// thing that we're changing is the curve preferences value, so that only elliptic curves
 	// with assembly implementations are used.
 	tlsConfig := &tls.Config{
