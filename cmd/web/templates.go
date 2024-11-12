@@ -1,11 +1,13 @@
 package main
 
 import (
+	"io/fs"
 	"path/filepath"
 	"text/template"
 	"time"
 
 	"snippetbox.prajjmon.net/internal/models"
+	"snippetbox.prajjmon.net/ui"
 )
 
 type templateData struct {
@@ -35,7 +37,8 @@ var functions = template.FuncMap{
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./ui/html/pages/*.html")
+	// This essentially gives us a slice of all the 'page' templates for the application
+	pages, err := fs.Glob(ui.Files, "html/pages/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -45,23 +48,15 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		// Extract the file name (like 'home.tmpl') from the full filepath
 		name := filepath.Base(page)
 
-		// The template.FuncMap must be registered with the template set before we call the
-		// ParseFiles() method. This means we have to use template.New() to create an empty
-		// template set, use the Funcs() method to register the template.FuncMap, and then
-		// parse the file as normal.
-		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.html")
-		if err != nil {
-			return nil, err
+		// Create slice containing the filepath patterns for the templates we want to parse.
+		patterns := []string{
+			"html/base.html",
+			"html/partials/*.html",
+			page,
 		}
 
-		// Call ParseGlob() *on this template set* to add any partials
-		ts, err = ts.ParseGlob("./ui/html/partials/*.html")
-		if err != nil {
-			return nil, err
-		}
-
-		// Call ParseFiles() *on this template set* to add the page template.
-		ts, err = ts.ParseFiles(page)
+		// Parse the template files from the ui.Files embedded filesystem.
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
