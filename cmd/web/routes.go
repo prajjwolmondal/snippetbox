@@ -19,7 +19,7 @@ func (app *application) routes() http.Handler {
 
 	// This middleware chain is specific to the dynamic app routes (non-static) that
 	// are unprotected (AKA no-auth required)
-	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf)
+	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)
 
 	mux.Handle("GET /{$}", dynamic.ThenFunc(app.home)) // Restrict this route to exact matches on "/" only.
 	mux.Handle("GET /snippet/view/{id}", dynamic.ThenFunc(app.snippetView))
