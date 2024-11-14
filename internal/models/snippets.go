@@ -9,6 +9,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type SnippetModelInterface interface {
+	Insert(title, content string) (int, error)
+	Get(id int) (Snippet, error)
+	Latest() ([]Snippet, error)
+}
+
 type Snippet struct {
 	ID      int
 	Title   string

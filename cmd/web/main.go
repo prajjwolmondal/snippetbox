@@ -20,11 +20,11 @@ import (
 // This struct will hold application-wide dependencies
 type application struct {
 	logger         *slog.Logger
-	snippets       *models.SnippetModel
+	snippets       models.SnippetModelInterface
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
-	users          *models.UserModel
+	users          models.UserModelInterface
 }
 
 func main() {

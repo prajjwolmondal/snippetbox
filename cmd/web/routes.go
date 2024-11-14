@@ -16,6 +16,8 @@ func (app *application) routes() http.Handler {
 	// the embedded files in ui.Files.
 	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
+	mux.HandleFunc("GET /ping", ping)
+
 	// This middleware chain is specific to the dynamic app routes (non-static) that
 	// are unprotected (AKA no-auth required)
 	dynamic := alice.New(app.sessionManager.LoadAndSave, noSurf, app.authenticate)

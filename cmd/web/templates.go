@@ -24,7 +24,12 @@ type templateData struct {
 // a time.Time object. Note: Using the exact layout "02 Jan 2006 15:04" allows Go to interpret
 // each component uniquely, so always refer to these exact values for reliable time formatting in Go.
 func humanDate(t time.Time) string {
-	return t.Format("02 Jan 2006 at 15:04")
+
+	if t.IsZero() {
+		return ""
+	}
+
+	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
 // Initialize a template.FuncMap object and store it in a global variable. This is essentially
